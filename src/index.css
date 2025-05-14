@@ -1,0 +1,126 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@font-face {
+  font-family: 'Proxima Soft';
+  src: local('Proxima Soft Bold'), local('Proxima-Soft-Bold'),
+      url('ProximaSoft-Bold.woff2') format('woff2'),
+      url('ProximaSoft-Bold.woff') format('woff'),
+      url('ProximaSoft-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@layer base {
+  :root {
+    --background: 36 70% 96%;
+    --foreground: 20 15% 25%;
+
+    --card: 36 25% 98%;
+    --card-foreground: 20 15% 25%;
+
+    --popover: 36 25% 98%;
+    --popover-foreground: 20 15% 25%;
+
+    --primary: 32 80% 60%;
+    --primary-foreground: 36 33% 97%;
+
+    --secondary: 36 15% 92%;
+    --secondary-foreground: 20 15% 25%;
+
+    --muted: 36 15% 92%;
+    --muted-foreground: 20 8% 46%;
+
+    --accent: 32 70% 85%;
+    --accent-foreground: 20 15% 25%;
+
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 36 33% 97%;
+
+    --border: 36 15% 84%;
+    --input: 36 15% 84%;
+    --ring: 20 14% 40%;
+    
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/80 backdrop-blur-sm border border-white/40 shadow-lg;
+  }
+  
+  .card-glass {
+    @apply bg-gradient-to-br from-card/90 to-secondary/80 backdrop-blur-md border border-white/50 shadow-xl;
+  }
+
+  .animate-spin-slow {
+    animation: spin 1.5s ease-in-out;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotateY(0deg);
+    }
+    100% {
+      transform: rotateY(360deg);
+    }
+  }
+  
+  .footer-link {
+    @apply transition-colors hover:text-primary;
+  }
+  
+  .social-icon {
+    @apply w-10 h-10 rounded-full bg-white/30 flex items-center justify-center hover:bg-primary hover:text-white transition-all transform hover:-translate-y-1;
+  }
+  
+  /* Animaciones para el carrusel de fondo */
+  @keyframes zoom-in {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(1.2);
+    }
+  }
+  
+  @keyframes zoom-out {
+    0% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  .font-proxima {
+    font-family: 'Proxima Soft', sans-serif;
+    font-weight: 900; /* Esto es "Black" */
+  }
+  
+  @font-face {
+    font-family: 'Proxima Soft';
+    src: local('Proxima Soft Bold'), local('Proxima-Soft-Bold'),
+        url('ProximaSoft-Bold.woff2') format('woff2'),
+        url('ProximaSoft-Bold.woff') format('woff'),
+        url('ProximaSoft-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+  }
+
+
+  
+}
