@@ -21,7 +21,6 @@ Una herramienta especializada para calcular precios de productos o servicios, pe
 > Calculá tu ganancia y definí tus precios de venta con una experiencia rápida e intuitiva.  
 > *Ejemplo: Velas aromáticas, joyería, ropa...*
 
-![Screenshot de la app](ruta/a/tu/captura.png)
 
 ## 📦 Instalación
 
