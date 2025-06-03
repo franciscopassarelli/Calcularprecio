@@ -1,6 +1,5 @@
 import React from "react";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 const Nosotros = () => {
   return (
@@ -32,7 +31,7 @@ const Nosotros = () => {
           Todo fue pensado para que cualquier persona pueda usarlo, sin necesidad de conocimientos técnicos. Desde emprendedores y artesanos, hasta negocios familiares o vendedores independientes.
         </p>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

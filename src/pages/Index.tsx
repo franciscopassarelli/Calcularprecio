@@ -3,7 +3,7 @@ import React from 'react';
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import PriceCalculator from "@/components/PriceCalculator";
-import Footer from "@/components/Footer";
+
 
 
 const Index = () => {
@@ -22,7 +22,7 @@ const Index = () => {
   </p>
 </section>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

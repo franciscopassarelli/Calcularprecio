@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calculator, Minus, Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Slider } from "@/components/ui/slider";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const provinces: { [key: string]: number } = {
   "CABA": 2.0,
@@ -39,6 +44,7 @@ interface TaxOrDiscount {
   type: string;
   value: number;
   amount: number;
+  enabled: boolean;
 }
 
 const PriceCalculator = () => {
@@ -47,7 +53,7 @@ const PriceCalculator = () => {
   const [cost, setCost] = useState('');
   const [margin, setMargin] = useState<number>(30);
   const [taxesAndDiscounts, setTaxesAndDiscounts] = useState<TaxOrDiscount[]>([
-    { id: '1', type: 'IVA (21%)', value: 21, amount: 0 }
+    { id: '1', type: 'IVA (21%)', value: 21, amount: 0, enabled: true }
   ]);
   const [finalPrice, setFinalPrice] = useState<number | null>(null);
   const [basePrice, setBasePrice] = useState<number | null>(null);
@@ -84,7 +90,7 @@ const PriceCalculator = () => {
     
     // Actualizar los montos de impuestos/descuentos
     const updatedItems = taxesAndDiscounts.map(item => {
-      const amount = priceWithMargin * (item.value / 100);
+      const amount = item.enabled ? priceWithMargin * (item.value / 100) : 0;
       return { ...item, amount };
     });
 
@@ -115,7 +121,7 @@ setFinalPrice(finalWithProvince);
     const newId = (taxesAndDiscounts.length + 1).toString();
     setTaxesAndDiscounts([
       ...taxesAndDiscounts,
-      { id: newId, type: 'IVA (21%)', value: 21, amount: 0 }
+      { id: newId, type: 'IVA (21%)', value: 21, amount: 0, enabled: true }
     ]);
   };
 
@@ -189,7 +195,7 @@ setFinalPrice(finalWithProvince);
     let totalTaxes = 0;
     
     taxesAndDiscounts.forEach(item => {
-      // Para descuentos, restamos; para impuestos, sumamos
+      if (!item.enabled) return;
       const factor = item.type.includes('Descuento') ? -1 : 1;
       totalTaxes += (priceWithMargin * (item.value / 100)) * factor;
     });
@@ -285,7 +291,7 @@ const finalPriceValue = (priceWithMargin + totalTaxes) * (1 + provinceTax / 100)
                 <Slider
                   id="margin"
                   defaultValue={[30]}
-                  max={100}
+                  max={500}
                   step={1}
                   value={[margin]}
                   onValueChange={handleSliderChange}
@@ -301,10 +307,21 @@ const finalPriceValue = (priceWithMargin + totalTaxes) * (1 + provinceTax / 100)
                 {basePrice && <span className="text-xs text-foreground/70">Precio base: ${basePrice.toFixed(2)}</span>}
               </div>
               
-              <div className="space-y-3">
-                {taxesAndDiscounts.map((item) => (
-                  <div key={item.id} className="flex space-x-2 items-start">
-                    <div className="flex-grow">
+                <div className="space-y-3">
+                  {taxesAndDiscounts.map((item) => (
+                    <div key={item.id} className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={item.enabled}
+                        onChange={() => {
+                          const updated = taxesAndDiscounts.map(t =>
+                            t.id === item.id ? { ...t, enabled: !t.enabled } : t
+                          );
+                          setTaxesAndDiscounts(updated);
+                        }}
+                        className="accent-primary mx-2"
+                        title="Incluir en el cálculo"
+                      />
                       <Select 
                         value={item.type} 
                         onValueChange={(value) => updateTaxOrDiscount(item.id, 'type', value)}
@@ -318,38 +335,29 @@ const finalPriceValue = (priceWithMargin + totalTaxes) * (1 + provinceTax / 100)
                           ))}
                         </SelectContent>
                       </Select>
-                    </div>
-                    
-                    <div className="w-16">
                       <Input
                         type="number"
                         value={item.value === 0 ? '' : item.value}
                         onChange={(e) => updateTaxOrDiscount(item.id, 'value', parseFloat(e.target.value) || 0)}
-                        placeholder="%"
-                        className="bg-white/70 border-white/20 text-foreground"
+                        placeholder="0"
+                        className="bg-white/70 border-white/20 text-foreground text-xs w-16"
                       />
-                    </div>
-                    
-                    <div className="w-20">
                       <Input
                         readOnly
                         value={item.amount ? `$${item.amount.toFixed(2)}` : '$0.00'}
-                        className="bg-white/70 border-white/20 text-foreground text-xs"
+                        className="bg-white/70 border-white/20 text-foreground text-xs w-20"
                       />
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => removeTaxOrDiscount(item.id)}
+                        className="flex-shrink-0"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
                     </div>
-                    
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => removeTaxOrDiscount(item.id)}
-                      className="flex-shrink-0"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              
+                  ))}
+                </div>
               <Button 
                 variant="outline" 
                 onClick={addTaxOrDiscount} 
@@ -359,27 +367,70 @@ const finalPriceValue = (priceWithMargin + totalTaxes) * (1 + provinceTax / 100)
               </Button>
             </div>
             
-            <Button 
-              onClick={calculateFinalPrice} 
-              className="w-full py-6 bg-sky-500 hover:bg-sky-600 transition-opacity font-bold"
-            >
-              Calcular mi precio perfecto
-            </Button>
-            
-            {finalPrice && (
-              <div className="mt-4 p-4 rounded-xl bg-primary/20 border border-primary/30">
-                <p className="text-foreground/80 text-sm">Precio de venta recomendado:</p>
-                <p className="text-2xl font-bold text-foreground">${finalPrice.toFixed(2)}</p>
-                <p className="text-xs text-foreground/60 mt-1">
-                  Incluye un margen de ganancia del {margin}% y todos los impuestos aplicables
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
+            {/* RESULTADOS */}
+            <div className="bg-[#faf8f5] border border-gray-200 rounded-xl p-6 mt-6 shadow-md">
+  <h3 className="text-center text-sm text-gray-500 font-semibold uppercase mb-4">
+    Resultados de la calculadora
+  </h3>
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+    <div>
+      <p className="text-sm text-gray-500">Tu precio de venta</p>
+      <p className="text-2xl font-bold text-green-600">
+        {finalPrice !== null ? `$${finalPrice.toFixed(2)}` : '—'}
+      </p>
+    </div>
+    <div>
+      <p className="text-sm text-gray-500">Tu ganancia neta</p>
+      <p className="text-2xl font-bold text-blue-600">
+  {basePrice !== null ? `$${(basePrice - parseFloat(cost || '0')).toFixed(2)}` : '—'}
+</p>
+    </div>
+    <div>
+      <p className="text-sm text-gray-500">Margen bruto</p>
+      <p className="text-2xl font-bold text-orange-600">
+        {finalPrice && finalPrice > 0
+          ? `${(((finalPrice - parseFloat(cost || '0')) / finalPrice) * 100).toFixed(2)}%`
+          : '0.00%'}
+      </p>
+    </div>
+  </div>
+</div>
+{/* PREGUNTAS FRECUENTES */}
+<div className="mt-10">
+  <h2 className="text-center text-xl font-semibold mb-6 text-foreground">Preguntas frecuentes</h2>
 
+  <Accordion type="single" collapsible className="w-full max-w-3xl mx-auto space-y-2">
+    <AccordionItem value="q1">
+      <AccordionTrigger>¿Qué es el precio de venta?</AccordionTrigger>
+      <AccordionContent>
+        Es el precio al que vas a vender tu producto. Podes sumar o restar impuestos y descuentos para obtener el precio final.
+      </AccordionContent>
+    </AccordionItem>
+
+    <AccordionItem value="q2">
+      <AccordionTrigger>¿Como es tu ganancia neta?</AccordionTrigger>
+      <AccordionContent>
+        Es la ganancia que obtenes despues de restar el costo del producto y los impuestos.
+      </AccordionContent>
+    </AccordionItem>
+
+    <AccordionItem value="q3">
+      <AccordionTrigger>¿Que es el margen bruto?</AccordionTrigger>
+      <AccordionContent>
+        Es el porcentaje que representa la ganancia obtenida sobre el precio final de venta. Cuanto mayor el margen, más rentable es el producto.
+      </AccordionContent>
+    </AccordionItem>
+
+    
+  </Accordion>
+</div>
+
+
+</div>
+</div>
+</div>
+</section>
+);
+};
 export default PriceCalculator;
+

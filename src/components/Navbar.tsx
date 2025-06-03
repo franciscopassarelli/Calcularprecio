@@ -3,6 +3,7 @@ import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
+
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
@@ -27,6 +28,7 @@ const Navbar = () => {
             <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">  Calculadora</Link>
               <Link to="/costo" className="text-sm font-medium text-foreground hover:text-primary transition-colors"> Calculá tu costo </Link>
               <Link to="/nosotros" className="text-sm font-medium hover:text-primary transition-colors">Nosotros</Link>
+              <Link to="/contacto">Contacto</Link>
               <a href="#contacto" className="text-black/80 hover:text-black transition-colors duration-200">Contacto</a>
             </div>
           </div>
